@@ -1,3 +1,4 @@
+
 #!/usr/bin/python3
 '''
 Queries the Reddit API and prints the titles of the first 10 hot posts
@@ -50,3 +51,4 @@ if __name__ == '__main__':
     # Test the function with a subreddit (e.g., 'programming')
     subreddit_name = input("Enter a subreddit: ")
     top_ten(subreddit_name)
+
