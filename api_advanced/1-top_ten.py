@@ -1,43 +1,52 @@
 #!/usr/bin/python3
-"""Queries the Reddit API and
-prints the titles of the first
-10 hot posts listed for a given
-subreddit.
-"""
+'''
+Queries the Reddit API and prints the titles of the first 10 hot posts
+for a given subreddit.
+'''
+
 import requests
 
 
 def top_ten(subreddit):
-    """Prints the titles of the first
-    10 hot posts listed for a given
-    subreddit.
-    """
-    # Set the Default URL strings
-    base_url = 'https://www.reddit.com'
-    api_uri = '{base}/r/{subreddit}/hot.json'.format(base=base_url,
-                                                     subreddit=subreddit)
+    '''
+    Prints the titles of the first 10 hot posts for a given subreddit.
 
-    # Set an User-Agent
-    user_agent = {'User-Agent': 'Python/requests'}
+    Args:
+        subreddit (str): The name of the subreddit.
+    '''
+    # Check if the subreddit is None or not a string
+    if subreddit is None or not isinstance(subreddit, str):
+        print(None)
+        return
 
-    # Set the Query Strings to Request
-    payload = {'limit': '10'}
+    # Base URL for the Reddit API
+    endpoint = 'https://www.reddit.com'
 
-    # Get the Response of the Reddit API
-    res = requests.get(api_uri, headers=user_agent,
-                       params=payload, allow_redirects=False)
+    # Custom User-Agent to avoid potential issues
+    headers = {'user-agent': 'Mozilla/5.0 \
+(Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'}
 
-    # Checks if the subreddit is invalid
-    if res.status_code in [302, 404]:
-        print('None')
+    # Make a GET request to the subreddit's hot.json endpoint
+    # allow_redirects=False to prevent automatic redirection
+    response = requests.get('{}/r/{}/hot.json?limit=10'.format(
+            endpoint,
+            subreddit), headers=headers, allow_redirects=False)
+
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Parse the JSON response
+        data = response.json()
+
+        # Extract and print the titles of the first 10 hot posts
+        for post in data.get('data', {}).get('children', []):
+            print(post.get('data', {}).get('title'))
     else:
-        res_json = res.json()
+        # Print None for invalid subreddit or if there's an
+        # issue with the request
+        print(None)
 
-        if res_json.get('data') and res_json.get('data').get('children'):
-            # Get the 10 hot posts of the subreddit
-            hot_posts = res_json.get('data').get('children')
-
-            # Print each hot post title
-            for post in hot_posts:
-                if post.get('data') and post.get('data').get('title'):
-                    print(post.get('data').get('title'))
+# Example usage or testing code
+if __name__ == '__main__':
+    # Test the function with a subreddit (e.g., 'programming')
+    subreddit_name = input("Enter a subreddit: ")
+    top_ten(subreddit_name)
